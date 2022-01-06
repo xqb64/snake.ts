@@ -16,20 +16,20 @@ enum Direction {
 
 const DIRECTIONS = {
   0: {
-      'coords': new Vec2(0, -1),
-      'forbidden': Direction.Down,
+    'coords': new Vec2(0, -1),
+    'forbidden': Direction.Down,
   },
   1: {
-      'coords': new Vec2(0, 1),
-      'forbidden': Direction.Up,
+    'coords': new Vec2(0, 1),
+    'forbidden': Direction.Up,
   },
   2: {
-      'coords': new Vec2(-1, 0),
-      'forbidden': Direction.Right,
+    'coords': new Vec2(-1, 0),
+    'forbidden': Direction.Right,
   },
   3: {
-      'coords': new Vec2(1, 0),
-      'forbidden': Direction.Left,
+    'coords': new Vec2(1, 0),
+    'forbidden': Direction.Left,
   }
 }
 
