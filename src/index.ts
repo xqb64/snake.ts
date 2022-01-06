@@ -3,7 +3,6 @@ const PLAYGROUND_HEIGHT: number = 25;
 
 const SCALE: number = 30;
 
-
 class Vec2 {
   constructor(public x: number, public y: number) {}
 }
@@ -54,7 +53,6 @@ class Game {
     for (const piece of this.snake.body) {
       this.ctx.beginPath();
       this.ctx.fillStyle = 'black';
-//      this.ctx.fillText(`${piece.x} ${piece.y}`, SCALE * piece.x, SCALE * piece.y, SCALE)
       this.ctx.rect(SCALE * piece.x, SCALE * piece.y, SCALE, SCALE)
       this.ctx.fill();
       this.ctx.closePath();
@@ -105,9 +103,6 @@ class Snake {
     this.body.push(nextStep);
   }
 }
-
-
-
 
 type SnakeBody = Vec2[];
 
