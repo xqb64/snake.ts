@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist/",
+    "target": "es5",
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "lib": ["DOM"]
+  }
+}
