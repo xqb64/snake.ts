@@ -1,7 +1,7 @@
 const PLAYGROUND_WIDTH: number = 25;
 const PLAYGROUND_HEIGHT: number = 25;
 
-const SCALE: number = 30;
+const SCALE: number = 20;
 
 class Vec2 {
   constructor(public x: number, public y: number) {}
@@ -46,17 +46,29 @@ class Game {
     this.canvas.width = PLAYGROUND_WIDTH * SCALE;
     this.canvas.height = PLAYGROUND_HEIGHT * SCALE;
 
+    this.outlineCanvas(this.canvas);
+
     this.snake = new Snake();
+  }
+
+  private outlineCanvas(canvas: HTMLCanvasElement) {
+    canvas.style.border = '5px solid black';
   }
 
   public drawSnake() {
     for (const piece of this.snake.body) {
-      this.ctx.beginPath();
-      this.ctx.fillStyle = 'black';
-      this.ctx.rect(SCALE * piece.x, SCALE * piece.y, SCALE, SCALE)
-      this.ctx.fill();
-      this.ctx.closePath();
+      this.drawSquare(piece);
     }
+  }
+
+  private drawSquare(coord: Vec2) {
+    this.ctx.beginPath();
+    this.ctx.fillStyle = 'black';
+    this.ctx.strokeStyle = 'white';
+    this.ctx.rect(SCALE * coord.x, SCALE * coord.y, SCALE, SCALE);
+    this.ctx.fill();
+    this.ctx.stroke();
+    this.ctx.closePath();
   }
 
   public reDrawSnake() {
@@ -66,7 +78,7 @@ class Game {
 }
 
 class Snake {
-  private direction: Direction;
+  public direction: Direction;
   public body: SnakeBody;
 
   constructor() {
@@ -74,7 +86,7 @@ class Snake {
     this.body = this.initializeBody();
   }
 
-  private initializeBody() {
+  private initializeBody(): SnakeBody {
     const xOffset = PLAYGROUND_WIDTH / 2;
     const yOffset = PLAYGROUND_HEIGHT / 2;
 
@@ -87,20 +99,22 @@ class Snake {
     return body;
   }
 
-  private getNextStep() {
+  private getNextStep(): Vec2 {
     const nextStep = DIRECTIONS[this.direction]['coords'];
     const head = this.body[this.body.length - 1];
     return new Vec2(head.x + nextStep.x, head.y + nextStep.y);
   }
 
-    public setDirection(direction: Direction) {
-    this.direction = direction;
+  public setDirection(direction: Direction) {
+    if (direction !== DIRECTIONS[this.direction]['forbidden']) {
+      this.direction = direction;
+    }
   }
 
   public crawl() {
     const nextStep = this.getNextStep();
-    this.body.shift();
     this.body.push(nextStep);
+    this.body.shift();
   }
 }
 
