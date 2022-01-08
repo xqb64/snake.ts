@@ -7,6 +7,10 @@ const SCALE: number = 20;
 
 class Vec2 {
   constructor(public x: number, public y: number) {}
+
+  public isEqual(vector: Vec2): boolean {
+    return this.x === vector.x && this.y === vector.y;
+  }
 }
 
 enum Direction {
@@ -50,6 +54,7 @@ class Game {
     
     this.canvas.width = PLAYGROUND_WIDTH * SCALE;
     this.canvas.height = PLAYGROUND_HEIGHT * SCALE;
+    this.canvas.style.background = '#7c9d05';
 
     this.outlineCanvas(this.canvas);
 
@@ -81,8 +86,8 @@ class Game {
 
   private drawSquare(coord: Vec2) {
     this.ctx.beginPath();
-    this.ctx.fillStyle = 'black';
-    this.ctx.strokeStyle = 'white';
+    this.ctx.fillStyle = '#1f2c13';
+    this.ctx.strokeStyle = '#7c9d05';
     this.ctx.rect(SCALE * coord.x, SCALE * coord.y, SCALE, SCALE);
     this.ctx.fill();
     this.ctx.stroke();
@@ -138,9 +143,10 @@ class Snake {
 
   public crawl() {
     const nextStep = this.getNextStep();
+
     this.body.push(nextStep);
 
-    if (this.body.at(-1)!.x === this.game.food.x && this.body.at(-1)!.y === this.game.food.y) {
+    if (this.game.food.isEqual(this.body.at(-1)!)) {
       this.game.updateScore();
       this.game.food = new Food(this.body);
     } else {
@@ -201,7 +207,7 @@ async function main() {
     game.snake.crawl();
     game.reDraw();
 
-    await delay(100);
+    await delay(150);
   }
 }
 
