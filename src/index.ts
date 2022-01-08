@@ -1,3 +1,5 @@
+import * as _ from 'lodash';
+
 const PLAYGROUND_WIDTH: number = 25;
 const PLAYGROUND_HEIGHT: number = 25;
 
@@ -37,7 +39,10 @@ class Game {
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
 
+  private score: number = 0;
+
   public snake: Snake;
+  public food: Food;
 
   constructor() {
     this.canvas = document.getElementById('canvas') as HTMLCanvasElement;
@@ -48,17 +53,30 @@ class Game {
 
     this.outlineCanvas(this.canvas);
 
-    this.snake = new Snake();
+    this.snake = new Snake(this);
+    this.food = new Food(this.snake.body);
+
+    this.drawSnake();
+    this.drawFood();
   }
 
   private outlineCanvas(canvas: HTMLCanvasElement) {
     canvas.style.border = '5px solid black';
   }
 
+  public updateScore() {
+    this.score += 10;
+    document.getElementById('score')!.innerText = `SCORE: ${this.score}`;
+  }
+
   public drawSnake() {
     for (const piece of this.snake.body) {
       this.drawSquare(piece);
     }
+  }
+
+  public drawFood() {
+    this.drawSquare(this.food);
   }
 
   private drawSquare(coord: Vec2) {
@@ -71,24 +89,28 @@ class Game {
     this.ctx.closePath();
   }
 
-  public reDrawSnake() {
+  public reDraw() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.drawSnake();
+    this.drawFood();
   }
 }
 
 class Snake {
+  private game: Game;
+
   public direction: Direction;
   public body: SnakeBody;
 
-  constructor() {
+  constructor(game: Game) {
+    this.game = game;
     this.direction = Direction.Right;
     this.body = this.initializeBody();
   }
 
   private initializeBody(): SnakeBody {
-    const xOffset = PLAYGROUND_WIDTH / 2;
-    const yOffset = PLAYGROUND_HEIGHT / 2;
+    const xOffset = Math.floor(PLAYGROUND_WIDTH / 2);
+    const yOffset = Math.floor(PLAYGROUND_HEIGHT / 2);
 
     const body: SnakeBody = [];
 
@@ -102,7 +124,10 @@ class Snake {
   private getNextStep(): Vec2 {
     const nextStep = DIRECTIONS[this.direction]['coords'];
     const head = this.body[this.body.length - 1];
-    return new Vec2(head.x + nextStep.x, head.y + nextStep.y);
+    return new Vec2(
+      modulo((head.x + nextStep.x), PLAYGROUND_WIDTH),
+      modulo((head.y + nextStep.y), PLAYGROUND_HEIGHT),
+    );
   }
 
   public setDirection(direction: Direction) {
@@ -114,18 +139,44 @@ class Snake {
   public crawl() {
     const nextStep = this.getNextStep();
     this.body.push(nextStep);
-    this.body.shift();
+
+    if (this.body.at(-1)!.x === this.game.food.x && this.body.at(-1)!.y === this.game.food.y) {
+      this.game.updateScore();
+      this.game.food = new Food(this.body);
+    } else {
+      this.body.shift();
+    }
   }
 }
 
 type SnakeBody = Vec2[];
 
+class Food extends Vec2 {
+  private snakeBody: SnakeBody;
+
+  constructor(snakeBody: SnakeBody) {
+    const x = _.random(1, PLAYGROUND_WIDTH - 1);
+    const y = _.random(1, PLAYGROUND_HEIGHT - 1)
+    
+    super(x, y);
+
+    this.snakeBody = snakeBody;
+    
+    while (this.overlapsSnake()) {
+      this.x = _.random(1, PLAYGROUND_WIDTH - 1);
+      this.y = _.random(1, PLAYGROUND_HEIGHT - 1);
+    }
+  }
+
+  public overlapsSnake() {
+    return this.snakeBody.includes(new Vec2(this.x, this.y));
+  }
+}
+
 async function main() {
   const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
   const game = new Game();
-
-  game.drawSnake();
 
   document.addEventListener('keydown', event => {
     switch (event.code) {
@@ -142,14 +193,20 @@ async function main() {
       game.snake.setDirection(Direction.Right);
       break;
     }
+    game.snake.crawl();
+    game.reDraw();
   });
 
   while (true) {
     game.snake.crawl();
-    game.reDrawSnake();
+    game.reDraw();
 
     await delay(100);
   }
+}
+
+function modulo(a: number, b: number): number {
+  return ((a % b) + b) % b;
 }
 
 document.addEventListener('DOMContentLoaded', main);
