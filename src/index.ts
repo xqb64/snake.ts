@@ -47,6 +47,8 @@ class Game {
 
   public snake: Snake;
   public food: Food;
+  public gameOver: boolean;
+
 
   constructor() {
     this.canvas = document.getElementById('canvas') as HTMLCanvasElement;
@@ -60,6 +62,7 @@ class Game {
 
     this.snake = new Snake(this);
     this.food = new Food(this.snake.body);
+    this.gameOver = false;
 
     this.drawSnake();
     this.drawFood();
@@ -98,6 +101,17 @@ class Game {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.drawSnake();
     this.drawFood();
+  }
+
+  public showGameOverScreen() {
+    const text = 'GAME OVER!';
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.ctx.fillText(
+      'GAME OVER!',
+      SCALE * (PLAYGROUND_WIDTH / 2) - SCALE * 2,
+      SCALE * (PLAYGROUND_HEIGHT / 2),
+      3 * SCALE,
+    );
   }
 }
 
@@ -144,6 +158,11 @@ class Snake {
   public crawl() {
     const nextStep = this.getNextStep();
 
+    if (this.isAboutToCollide(nextStep)) {
+      this.game.gameOver = true;
+      return;
+    }
+
     this.body.push(nextStep);
 
     if (this.game.food.isEqual(this.body.at(-1)!)) {
@@ -152,6 +171,15 @@ class Snake {
     } else {
       this.body.shift();
     }
+  }
+
+  private isAboutToCollide(nextStep: Vec2): boolean {
+    for (const piece of this.body) {
+      if (piece.isEqual(nextStep)) {
+        return true;
+      }
+    }
+    return false;
   }
 }
 
@@ -203,12 +231,18 @@ async function main() {
     game.reDraw();
   });
 
-  while (true) {
+  while (!game.gameOver) {
     game.snake.crawl();
     game.reDraw();
 
     await delay(150);
   }
+
+  game.showGameOverScreen();
+  
+  await delay(2500);
+
+  await main();
 }
 
 function modulo(a: number, b: number): number {
