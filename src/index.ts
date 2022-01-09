@@ -207,6 +207,10 @@ class Food extends Vec2 {
   }
 }
 
+function modulo(a: number, b: number): number {
+  return ((a % b) + b) % b;
+}
+
 async function main() {
   const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -243,10 +247,6 @@ async function main() {
   await delay(2500);
 
   await main();
-}
-
-function modulo(a: number, b: number): number {
-  return ((a % b) + b) % b;
 }
 
 document.addEventListener('DOMContentLoaded', main);
