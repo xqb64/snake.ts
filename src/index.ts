@@ -61,7 +61,7 @@ class Game {
     this.outlineCanvas(this.canvas);
 
     this.snake = new Snake(this);
-    this.food = new Food(this.snake.body);
+    this.food = new Food(this.snake);
     this.gameOver = false;
 
     this.drawSnake();
@@ -167,13 +167,13 @@ class Snake {
 
     if (this.game.food.isEqual(this.body.at(-1)!)) {
       this.game.updateScore();
-      this.game.food = new Food(this.body);
+      this.game.food = new Food(this);
     } else {
       this.body.shift();
     }
   }
 
-  private isAboutToCollide(nextStep: Vec2): boolean {
+  public isAboutToCollide(nextStep: Vec2): boolean {
     for (const piece of this.body) {
       if (piece.isEqual(nextStep)) {
         return true;
@@ -186,15 +186,15 @@ class Snake {
 type SnakeBody = Vec2[];
 
 class Food extends Vec2 {
-  private snakeBody: SnakeBody;
+  private snake: Snake;
 
-  constructor(snakeBody: SnakeBody) {
+  constructor(snake: Snake) {
     const x = _.random(1, PLAYGROUND_WIDTH - 1);
     const y = _.random(1, PLAYGROUND_HEIGHT - 1)
     
     super(x, y);
 
-    this.snakeBody = snakeBody;
+    this.snake = snake;
     
     while (this.overlapsSnake()) {
       this.x = _.random(1, PLAYGROUND_WIDTH - 1);
@@ -203,7 +203,7 @@ class Food extends Vec2 {
   }
 
   public overlapsSnake() {
-    return this.snakeBody.includes(new Vec2(this.x, this.y));
+    return this.snake.isAboutToCollide(new Vec2(this.x, this.y));
   }
 }
 
