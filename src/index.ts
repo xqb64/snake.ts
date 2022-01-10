@@ -5,6 +5,9 @@ const PLAYGROUND_HEIGHT: number = 25;
 
 const SCALE: number = 20;
 
+const CANVAS_BACKGROUND_COLOR = '#7c9d05';
+const RECT_COLOR = '#1f2c13';
+
 class Vec2 {
   constructor(public x: number, public y: number) {}
 
@@ -56,7 +59,7 @@ class Game {
     
     this.canvas.width = PLAYGROUND_WIDTH * SCALE;
     this.canvas.height = PLAYGROUND_HEIGHT * SCALE;
-    this.canvas.style.background = '#7c9d05';
+    this.canvas.style.background = CANVAS_BACKGROUND_COLOR;
 
     this.outlineCanvas(this.canvas);
 
@@ -89,8 +92,8 @@ class Game {
 
   private drawSquare(coord: Vec2) {
     this.ctx.beginPath();
-    this.ctx.fillStyle = '#1f2c13';
-    this.ctx.strokeStyle = '#7c9d05';
+    this.ctx.fillStyle = RECT_COLOR;
+    this.ctx.strokeStyle = CANVAS_BACKGROUND_COLOR;
     this.ctx.rect(SCALE * coord.x, SCALE * coord.y, SCALE, SCALE);
     this.ctx.fill();
     this.ctx.stroke();
